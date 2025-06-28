@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <div>
+      <h1 class="todo-header">Basic TODO App</h1>
+    </div>
+    <!-- list view -->
+    <div class="content-view">
+      <!-- All Pending List -->
+      <div class="todo-content">
+        <div id="loading" style="text-align: center; margin-bottom: 1rem; color: rgb(85, 195, 22); font-size: 14px;">
+          Loading tasks, please wait ...
+        </div>
+        <h2>Pending Tasks</h2>
+        <!-- <div class="task">
+          <input type="checkbox" id="task1">
+          <label for="task1">Read for 10 minutes</label>
+          <button class='delete-task'>&#128465;</button>
+          <button class='edit-task'>&#9998;</button>
+          <span class="meta">| High | Jun 16</span>
+        </div> -->
+
+        <div class="pending-list"></div>
+
+        <hr>
+
+        <!-- Completed List -->
+        <h2>Completed Tasks</h2>
+        <div class="completed-list">
+          <!-- <div class="complete-task">
+            <span>Visit the manager</span>
+            <span class="meta">| High | Jun 14</span>
+          </div>
+          <div class="complete-task">
+            <span>Visit the manager</span>
+            <span class="meta">| High | Jun 14</span>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- submit view -->
+    <div class="form-view">
+      <form action="" class="task-form" id="taskForm">
+        <label for="task">Task:</label>
+        <textarea name="task" id="task" placeholder="Enter your task here..."></textarea>
+
+        <div class="priority-section">
+          <label>Priority:</label>
+          <div class="priority-options">
+            <label><input type="radio" name="priority" value="high"> High</label>
+            <label><input type="radio" name="priority" value="medium"> Medium</label>
+            <label><input type="radio" name="priority" checked value="low"> Low</label>
+          </div>
+        </div>
+
+        <button type="submit">Add Task</button>
+      </form>
+    </div>
+
+
+
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+
+
+</html>
