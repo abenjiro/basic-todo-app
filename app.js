@@ -10,6 +10,7 @@ const completedList = document.querySelector(".completed-list");
 document.addEventListener("DOMContentLoaded", async () => {
     const tasks = await fetchTasks();
     renderTasks(tasks);
+    fetchActivityLogs(); // load logs on startup
 });
 
 // Fetch all tasks
@@ -233,6 +234,7 @@ async function deleteTask(id) {
 // Helper: reload task list
 function loadAndRefresh() {
     fetchTasks().then(renderTasks);
+    fetchActivityLogs();
 }
 
 // Helper: capitalize string
@@ -258,4 +260,48 @@ function editTask(task) {
 
     // Track the task being edited
     editingTaskId = task.id;
+}
+
+async function fetchActivityLogs() {
+    try {
+        const res = await fetch(`${API_URL}/logs`);
+        const data = await res.json();
+        renderActivityLogs(data?.data || []);
+    } catch (err) {
+        console.error("Activity fetch error:", err);
+    }
+}
+
+function renderActivityLogs(logs) {
+    const activityList = document.getElementById("activityList");
+    activityList.innerHTML = "";
+
+    if (logs.length === 0) {
+        activityList.innerHTML = "<p>No recent activity</p>";
+        return;
+    }
+
+    logs.forEach(log => {
+        const p = document.createElement("p");
+        const relativeTime = timeAgo(log.created_at);
+        p.textContent = `${log.description} (${relativeTime})`;
+        activityList.appendChild(p);
+    });
+}
+
+
+function timeAgo(timestamp) {
+    const now = new Date();
+    const createdAt = new Date(timestamp);
+    const diffMs = now - createdAt;
+
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours   = Math.floor(minutes / 60);
+    const days    = Math.floor(hours / 24);
+
+    if (seconds < 60) return "just now";
+    if (minutes < 60) return `${minutes} min${minutes > 1 ? "s" : ""} ago`;
+    if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
+    return `${days} day${days > 1 ? "s" : ""} ago`;
 }

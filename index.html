@@ -10,7 +10,7 @@
 
 <body>
   <div class="container">
-      <h1 class="todo-header">Basic TODO App</h1>
+    <h1 class="todo-header">Basic TODO App</h1>
     <!-- list view -->
     <div class="content-view">
       <!-- All Pending List -->
@@ -31,25 +31,32 @@
       </div>
     </div>
 
-    <!-- submit view -->
-    <div class="form-view">
-      <form action="" class="task-form" id="taskForm">
-        <label for="task">Task:</label>
-        <textarea name="task" id="task" placeholder="Enter your task here..."></textarea>
+    <!-- form-view and activity-view side by side -->
+    <div style="display: flex; flex-direction: column; gap: 20px; min-width: 300px; flex: 1;">
+      <!-- submit view -->
+      <div class="form-view">
+        <form action="" class="task-form" id="taskForm">
+          <label for="task">Task:</label>
+          <textarea name="task" id="task" placeholder="Enter your task here..."></textarea>
 
-        <div class="priority-section">
-          <label>Priority:</label>
-          <div class="priority-options">
-            <label><input type="radio" name="priority" value="high"> High</label>
-            <label><input type="radio" name="priority" value="medium"> Medium</label>
-            <label><input type="radio" name="priority" checked value="low"> Low</label>
+          <div class="priority-section">
+            <label>Priority:</label>
+            <div class="priority-options">
+              <label><input type="radio" name="priority" value="high"> High</label>
+              <label><input type="radio" name="priority" value="medium"> Medium</label>
+              <label><input type="radio" name="priority" checked value="low"> Low</label>
+            </div>
           </div>
-        </div>
 
-        <button type="submit">Add Task</button>
-      </form>
+          <button type="submit">Add Task</button>
+        </form>
+      </div>
+
+      <div class="activity-view">
+        <h3>Task Activities</h3>
+          <div class="activity-list" id="activityList"></div>
+      </div>
     </div>
-
 
 
   </div>
