@@ -46,11 +46,14 @@ taskForm.addEventListener("submit", async (e) => {
     // button events
     submitBtn.disabled = true;
     submitBtn.textContent = "Adding...";
+    const loader = document.getElementById("loading");
+    loader.style.display = "block";
 
     try {
         let res;
         if (editingTaskId) {
             // Update existing task
+            loader.innerHTML = "Updating tasks, please wait ..."
             res = await fetch(`${API_URL}/${editingTaskId}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -58,6 +61,7 @@ taskForm.addEventListener("submit", async (e) => {
             });
         } else {
             // Create new task
+            loader.innerHTML = "Adding tasks, please wait ..."
             res = await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -72,8 +76,9 @@ taskForm.addEventListener("submit", async (e) => {
 
         if (res.ok) {
             const newTask = await res.json();
-            renderTasks([newTask.data], true); // Append single task
+            await loadAndRefresh();
             taskForm.reset();
+            loader.style.display = "none";
         }
     } catch (err) {
         console.error("Create error:", err);
@@ -81,6 +86,8 @@ taskForm.addEventListener("submit", async (e) => {
         submitBtn.disabled = false;
         submitBtn.textContent = "Add Task";
         editingTaskId = null;
+        loader.style.display = "none";
+
     }
 });
 
@@ -92,28 +99,33 @@ function renderTasks(tasks, append = false) {
         completedList.innerHTML = "";
     }
 
-    if (tasks && tasks.length == 0) {
+     const p_list = tasks?.filter(t => !t.completed) || [];
+    const c_list = tasks?.filter(t => t.completed) || [];
+
+    // Show empty messages if needed
+    if (p_list.length === 0) {
         pendingList.innerHTML = "<p style='text-align: center;'>NB: You have no pending task, click on <b>Add Task</b> button to add new task.</p>";
-        completedList.innerHTML = "<p style='text-align: center;'> NB: You have no completed task</p>";
-    } else {
-        pendingList.innerHTML = "";
-        completedList.innerHTML = "";
     }
-    console.log(tasks)
+
+    if (c_list.length === 0) {
+        completedList.innerHTML = "<p style='text-align: center;'>NB: You have no completed task</p>";
+    }
+
 
     tasks.forEach((task) => {
         const taskDiv = document.createElement("div");
-        taskDiv.className = task.completed ? "complete-task" : "task";
-        console.log("kkkkk")
-
+        const baseClass = task.completed ? "complete-task" : "task";
+        taskDiv.className = `${baseClass} priority-${task.priority.toLowerCase()}`;
 
         if (!task.completed) {
-            console.log("pending")
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.id = `task-${task.id}`;
 
             checkbox.addEventListener("change", async () => {
+                const loader = document.getElementById("loading");
+                loader.style.display = "block";
+                loader.innerHTML = "Completing tasks, please wait ..."
                 await updateTask(task.id, { completed: true });
                 loadAndRefresh();
             });
@@ -125,7 +137,7 @@ function renderTasks(tasks, append = false) {
             const meta = document.createElement("span");
             meta.className = "meta";
             const date = new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            meta.textContent = `| ${capitalize(task.priority)} | ${date}`;
+            meta.textContent = ` ${capitalize(task.priority)} | ${date}`;
 
             // Delete button
             const deleteBtn = document.createElement("button");
@@ -133,6 +145,7 @@ function renderTasks(tasks, append = false) {
             deleteBtn.className = "delete-task";
             deleteBtn.title = "Delete task";
             deleteBtn.addEventListener("click", async () => {
+             
                 const confirmDelete = confirm("Are you sure you want to delete this task?");
                 if (confirmDelete) {
                     await deleteTask(task.id);
@@ -156,14 +169,13 @@ function renderTasks(tasks, append = false) {
 
             pendingList.appendChild(taskDiv);
         } else {
-            console.log("completed")
             const label = document.createElement("span");
             label.textContent = task.description;
 
             const meta = document.createElement("span");
             meta.className = "meta";
             const date = new Date(task.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            meta.textContent = `| ${capitalize(task.priority)} | ${date}`;
+            meta.textContent = ` ${capitalize(task.priority)} | ${date}`;
 
             // Delete button for completed task
             const deleteBtn = document.createElement("button");
@@ -203,6 +215,10 @@ async function updateTask(id, updateData) {
 // Delete task (optional UI hook)
 async function deleteTask(id) {
     try {
+        const loader = document.getElementById("loading");
+        loader.innerHTML = "Deleting tasks, please wait ...";
+        loader.style.display = "block";
+
         const res = await fetch(`${API_URL}/${id}`, {
             method: "DELETE"
         });
