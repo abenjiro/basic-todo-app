@@ -6,11 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Todo App</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>
   <div class="container">
-    <h1 class="todo-header">Basic TODO App</h1>
+    <h4 class="todo-header">BASIC TODO APP</h4>
     <!-- list view -->
     <div class="content-view">
       <!-- All Pending List -->
@@ -52,9 +54,14 @@
         </form>
       </div>
 
+      <div class="analysis-view">
+        <h3 style="text-align: center; margin: 0px;">Task Analysis</h3>
+        <canvas id="myChart" width="250" height="250" style="max-width: 100%;"></canvas>
+      </div>
+
       <div class="activity-view">
         <h3>Task Activities</h3>
-          <div class="activity-list" id="activityList"></div>
+        <div class="activity-list" id="activityList"></div>
       </div>
     </div>
 

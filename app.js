@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tasks = await fetchTasks();
     renderTasks(tasks);
     fetchActivityLogs(); // load logs on startup
+    loadTaskAnalytics();
+
 });
 
 // Fetch all tasks
@@ -100,7 +102,7 @@ function renderTasks(tasks, append = false) {
         completedList.innerHTML = "";
     }
 
-     const p_list = tasks?.filter(t => !t.completed) || [];
+    const p_list = tasks?.filter(t => !t.completed) || [];
     const c_list = tasks?.filter(t => t.completed) || [];
 
     // Show empty messages if needed
@@ -146,7 +148,7 @@ function renderTasks(tasks, append = false) {
             deleteBtn.className = "delete-task";
             deleteBtn.title = "Delete task";
             deleteBtn.addEventListener("click", async () => {
-             
+
                 const confirmDelete = confirm("Are you sure you want to delete this task?");
                 if (confirmDelete) {
                     await deleteTask(task.id);
@@ -235,6 +237,7 @@ async function deleteTask(id) {
 function loadAndRefresh() {
     fetchTasks().then(renderTasks);
     fetchActivityLogs();
+    loadTaskAnalytics();
 }
 
 // Helper: capitalize string
@@ -297,11 +300,65 @@ function timeAgo(timestamp) {
 
     const seconds = Math.floor(diffMs / 1000);
     const minutes = Math.floor(seconds / 60);
-    const hours   = Math.floor(minutes / 60);
-    const days    = Math.floor(hours / 24);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
 
     if (seconds < 60) return "just now";
     if (minutes < 60) return `${minutes} min${minutes > 1 ? "s" : ""} ago`;
     if (hours < 24) return `${hours} hr${hours > 1 ? "s" : ""} ago`;
     return `${days} day${days > 1 ? "s" : ""} ago`;
+}
+
+let myChart = null; // Make this global
+
+async function loadTaskAnalytics() {
+    try {
+        console.log('htell')
+        const res = await fetch(`${API_URL}/analytics`);
+        const { data } = await res.json();
+        const stats = data[0];
+        console.log("hte")
+
+        const totalCompleted = parseInt(stats.total_completed);
+        const totalPending = parseInt(stats.total_pending);
+        const totalTasks = totalCompleted + totalPending;
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        // Destroy the previous chart if it exists
+        if (myChart !== null) {
+            myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending Task', 'Completed Task'],
+                datasets: [{
+                    label: 'My Todo Analysis',
+                    data: [totalPending, totalCompleted],
+                    backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.label || '';
+                                let value = context.parsed || 0;
+                                return `${label}: ${value}`;
+                            },
+                            afterBody: function () {
+                                return `Total Tasks: ${totalTasks}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error("Analytics fetch error:", err);
+    }
 }
